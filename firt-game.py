@@ -9,6 +9,7 @@ class Ball:
         self.color = (random.randrange(200, 255), random.randrange(30, 255), random.randrange(50, 255))
         self.right = True
         self.stop = False
+        self.dir = list(randome.choices(-4,5))
         pygame.draw.circle(screen, self.color, self.pos, self.radius)
 
     def horizontal_move(self):
@@ -21,6 +22,13 @@ class Ball:
                 self.pos[0] += 1
             else:
                 self.pos[0] -= 1
+
+    def ball_intersection(self, other):
+        if ((self.pos[0] - other[0])**2 + (self.pos[1] - other[1])**2) < (2 * self.radius)**2:
+            return True # пересекаются
+        else:
+            return False
+        # разница меньше радиуса - пересекаются
 
     def redraw(self):
         pygame.draw.circle(screen, self.color, self.pos, self.radius)
@@ -50,13 +58,22 @@ while running:
                 koor = event.pos  # координаты точки где мы тыкнули левой кнопкой мыши
                 ball = Ball(koor)
                 spisok.append(ball)
-            else:
-                stop = False
+            elif event.button == 3:
+                stop = True
+                del spisok[0]
     clock.tick(FPS)  # это нужно для того чтобы у тебя смена кадров происходила с какой-то скоростью fps
-    for ball in spisok:
+    for el in spisok:
         ball.horizontal_move()
         ball.redraw()
 
+    koor = event.pos
+    ball = Ball(koor)
+    i = 0
+    while i != (len(spisok) - 2):
+        i += 1
+        if ball.ball_intersection(spisok[i], spisok[i + 1]):
+                del spisok[i]
+                del spisok[i + 1]
     pygame.display.flip()  # это смена кадров
     screen.fill((235, 229, 221))
     clock.tick(FPS)
